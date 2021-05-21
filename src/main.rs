@@ -10,23 +10,21 @@ use std::{
 
 fn main() {
     // read input data
-    let candidates = lines_from_file("input.txt");
+    let input_file = std::env::args_os().nth(1).expect("expected 1 argument");
+    let candidates: Vec<_> = lines_from_file(input_file).collect();
 
-    // sort data
-    let order = candidates.iter().map(|s| Element::new(s.as_str())).sorted();
+    // sort/rank data
+    let ranking = candidates.iter().map(|s| Element::new(s.as_str())).sorted();
 
     // display ordering
-    println!();
-    println!("Final ordering:");
-    for (i, s) in order.enumerate() {
+    println!("\nFinal ordering:");
+    for (i, s) in ranking.enumerate() {
         println!("{}. {}", i + 1, s);
     }
 }
 
-fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
+fn lines_from_file(filename: impl AsRef<Path>) -> impl Iterator<Item = String> {
     let file = File::open(filename).expect("no such file");
     let buf = BufReader::new(file);
-    buf.lines()
-        .map(|l| l.expect("Could not parse line"))
-        .collect()
+    buf.lines().map(|l| l.expect("Could not parse line"))
 }
