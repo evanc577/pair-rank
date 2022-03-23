@@ -4,11 +4,13 @@ use std::{
     io::{prelude::*, stdin, stdout},
 };
 
-#[derive(PartialEq, Eq)]
+/// Sortable item that queries user during comparisons
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Element<T>
 where
     T: fmt::Display + Eq,
 {
+    /// String to be displayed to user
     name: T,
 }
 
@@ -16,6 +18,7 @@ impl<T> Element<T>
 where
     T: fmt::Display + Eq,
 {
+    /// Create a new Element with a specified name.
     pub fn new(name: T) -> Element<T> {
         Element { name }
     }
@@ -34,7 +37,12 @@ impl<T> PartialOrd for Element<T>
 where
     T: fmt::Display + Eq,
 {
+    /// Query user to determine order.
+    /// User inputs "1" or "2" to stdin to choose the greater element
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self == other {
+            return Some(Ordering::Equal);
+        }
         loop {
             println!();
             println!("(1) {}", self.name);
