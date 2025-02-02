@@ -1,8 +1,7 @@
-use std::{
-    cmp::Ordering,
-    fmt,
-    io::{prelude::*, stdin, stdout},
-};
+use std::cmp::Ordering;
+use std::fmt;
+use std::io::prelude::*;
+use std::io::{stdin, stdout};
 
 /// Sortable item that queries user during comparisons
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
@@ -33,6 +32,7 @@ where
     }
 }
 
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl<T> PartialOrd for Element<T>
 where
     T: fmt::Display + Eq,
@@ -57,7 +57,7 @@ where
                 "2" => return Some(Ordering::Greater),
                 _ => {
                     println!("\nInvalid number!");
-                },
+                }
             };
         }
     }

@@ -2,56 +2,45 @@ mod element;
 mod merge_insertion_sort;
 mod merge_sort;
 
-use clap::{Arg, App, arg_enum, value_t};
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::BufReader;
+use std::path::{Path, PathBuf};
+
+use clap::Parser;
+use clap::ValueEnum;
+
 use self::element::Element;
 use self::merge_insertion_sort::merge_insertion_sort;
 use self::merge_sort::merge_sort;
-use std::{
-    fs::File,
-    io::{prelude::*, BufReader},
-    path::Path,
-};
 
-arg_enum!{
-    #[derive(PartialEq, Debug)]
-    pub enum SortAlgorithm {
-        Stdlib,
-        MergeInsertion,
-        Merge,
-    }
+#[derive(Parser)]
+struct Cli {
+    inputs_file: PathBuf,
+
+    #[arg(short, long, value_enum, default_value_t = SortAlgorithm::Merge)]
+    sort_algorithm: SortAlgorithm,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum SortAlgorithm {
+    Stdlib,
+    MergeInsertion,
+    Merge,
 }
 
 fn main() {
-    let args = App::new(env!("CARGO_PKG_NAME"))
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
-        .about(env!("CARGO_PKG_DESCRIPTION"))
-        .arg(
-            Arg::with_name("SORT")
-                .short("s")
-                .long("sort")
-                .value_name("algorithm")
-                .possible_values(&SortAlgorithm::variants())
-                .case_insensitive(true)
-                .default_value("MergeInsertion"),
-        )
-        .arg(
-            Arg::with_name("INPUT")
-                .help("Sets the input file to use")
-                .required(true)
-                .index(1),
-        )
-        .get_matches();
+    let args = Cli::parse();
 
     // read input data
-    let candidates: Vec<_> = lines_from_file(args.value_of("INPUT").unwrap()).collect();
+    let candidates: Vec<_> = lines_from_file(args.inputs_file).collect();
 
     // sort/rank data
     let mut ranking: Vec<_> = candidates
         .iter()
         .map(|s| Element::new(s.as_str()))
         .collect();
-    match value_t!(args, "SORT", SortAlgorithm).unwrap() {
+    match args.sort_algorithm {
         SortAlgorithm::Stdlib => ranking.sort(),
         SortAlgorithm::Merge => merge_sort(&mut ranking[..]),
         SortAlgorithm::MergeInsertion => merge_insertion_sort(&mut ranking[..]),
