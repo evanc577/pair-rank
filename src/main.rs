@@ -9,6 +9,7 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 use clap::ValueEnum;
+use rand::seq::SliceRandom;
 
 use self::element::Element;
 use self::merge_insertion_sort::merge_insertion_sort;
@@ -33,7 +34,9 @@ fn main() {
     let args = Cli::parse();
 
     // read input data
-    let candidates: Vec<_> = lines_from_file(args.inputs_file).collect();
+    let mut candidates: Vec<_> = lines_from_file(args.inputs_file).collect();
+    let mut rng = rand::rng();
+    candidates.shuffle(&mut rng);
 
     // sort/rank data
     let mut ranking: Vec<_> = candidates
